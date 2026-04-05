@@ -1,0 +1,37 @@
+device: cuda          # cuda | mps | cpu
+dtype: float16        # float16 | float32
+
+models:
+  segmentation:
+    repo: mattmdjaga/segformer_b2_clothes
+
+  vton:
+    # Phase 1: IP-Adapter + SD 1.5 inpainting
+    # Upgrade path: replace with CatVTON or OOTDiffusion (same interface)
+    base_repo: runwayml/stable-diffusion-inpainting
+    ip_adapter_repo: h94/IP-Adapter
+    ip_adapter_weight: ip-adapter_sd15.bin
+    ip_adapter_scale: 0.7
+
+  controlnet_sd:
+    # Phase 2: text-prompt mode
+    repo: runwayml/stable-diffusion-inpainting
+    controlnet_repo: lllyasviel/control_v11p_sd15_openpose
+
+inference:
+  #num_inference_steps: 12
+  num_inference_steps: 8
+  guidance_scale: 7.5
+  image_size: 384
+  seed: 42
+
+storage:
+  save_results: true
+  results_dir: results
+  return_base64: true
+
+server:
+  backend_host: 0.0.0.0
+  backend_port: 8000
+  streamlit_port: 8501
+  backend_url: http://localhost:8000

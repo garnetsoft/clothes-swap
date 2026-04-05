@@ -54,7 +54,9 @@ def load_models(status_cb):
         "runwayml/stable-diffusion-inpainting",
         torch_dtype=dtype,
     )
-    inpaint_pipe.to(device)
+    inpaint_pipe.enable_sequential_cpu_offload()
+    inpaint_pipe.enable_attention_slicing(1)
+    inpaint_pipe.enable_vae_tiling()
     inpaint_pipe.set_progress_bar_config(disable=True)
 
     print(f"Segmentation model loaded with labels  — total load time: {(datetime.now() - stime).total_seconds():.2f}s")
@@ -87,7 +89,7 @@ def segment_clothing(image: Image.Image, label_ids: list[int]) -> Image.Image:
 # ── inpainting ───────────────────────────────────────────────────────────────
 def inpaint(image: Image.Image, mask: Image.Image, prompt: str,
             progress_cb=None) -> Image.Image:
-    TARGET = 512
+    TARGET = 384
     orig_size = image.size
     total_steps = 8
 
